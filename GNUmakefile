@@ -8,6 +8,7 @@ endif
 endif
 
 CCLD := $(CC)
+ECHO := /bin/echo
 
 EFFECTIVE_CPPFLAGS := $(CPPFLAGS) -Iinclude
 EFFECTIVE_CFLAGS := $(CFLAGS) -std=gnu99
@@ -28,21 +29,30 @@ HEADERS := $(wildcard include/*.h)
 OBJS := $(subst .c,.c.o,$(C_FILES))
 TARGET := rev
 
-all: $(TARGET)
+all: before_all $(TARGET)
+
+before_all:
+	@echo -e "Building version $(shell git log --pretty=format:'%h' -n 1)..."
+ifeq ($(DEBUG),YES)
+	@$(ECHO) -e "  CC\t\t= $(CC)"
+	@$(ECHO) -e "  CCLD\t\t= $(CCLD)"
+	@$(ECHO) -e "  CFLAGS\t= $(EFFECTIVE_CFLAGS)"
+	@$(ECHO) -e "  LDFLAGS\t= $(EFFECTIVE_LDFLAGS)"
+endif
 
 %.c.o: %.c $(HEADERS)
-	@echo -e "  CC\t$<"
+	@$(ECHO) -e "  CC\t\t$<"
 	@$(CC) $(EFFECTIVE_CPPFLAGS) $(EFFECTIVE_CFLAGS) -c $< -o $@
 
 $(TARGET): $(OBJS)
-	@echo -e "  CCLD\t$@"
+	@$(ECHO) -e "  CCLD\t\t$@"
 	@$(CCLD) $(EFFECTIVE_LDFLAGS) -o $(TARGET) $(OBJS)
 
 clean:
-	@echo "  CLEAN"
+	@$(ECHO) -e "  CLEAN"
 	-@rm -f $(TARGET) $(OBJS) >& /dev/null
 
 check: all
-	@echo "  TEST"
+	@$(ECHO) -e "  TEST"
 	@cd test && ./check-all.sh ../$(TARGET) *.txt
 
