@@ -6,7 +6,7 @@ env:
   - DEBUG=YES
   - DEBUG=NO
 before_script:
-  - sudo ln bash /bin/sh
+  - sudo ln -sf bash /bin/sh
 script:
   - make check profile
 after_script:
