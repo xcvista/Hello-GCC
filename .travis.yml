@@ -6,6 +6,6 @@ env:
   - DEBUG=YES
   - DEBUG=NO
 script:
-  - make check
+  - make check profile
 after_script:
   - make clean

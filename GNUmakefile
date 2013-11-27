@@ -33,12 +33,10 @@ all: before_all $(TARGET)
 
 before_all:
 	@echo -e "Building version $(shell git log --pretty=format:'%h' -n 1)..."
-ifeq ($(DEBUG),YES)
 	@$(ECHO) -e "  CC\t\t= $(CC)"
 	@$(ECHO) -e "  CCLD\t\t= $(CCLD)"
 	@$(ECHO) -e "  CFLAGS\t= $(EFFECTIVE_CFLAGS)"
 	@$(ECHO) -e "  LDFLAGS\t= $(EFFECTIVE_LDFLAGS)"
-endif
 
 %.c.o: %.c $(HEADERS)
 	@$(ECHO) -e "  CC\t\t$<"
@@ -56,3 +54,6 @@ check: all
 	@$(ECHO) -e "  TEST"
 	@cd test && ./check-all.sh ../$(TARGET) *.txt
 
+profile: all
+	@$(ECHO) -e "  PROFILE"
+	@time { for each in {1..100}; do ./$(TARGET) < src/main.c > /dev/null; done }
