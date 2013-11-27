@@ -2,6 +2,10 @@ language: c
 compiler:
   - gcc
   - clang
+env:
+  - DEBUG=YES
+  - DEBUG=NO
 script:
   - make check
-
+after_script:
+  - make clean
