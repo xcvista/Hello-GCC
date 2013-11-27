@@ -1,8 +1,10 @@
 
+ifeq ($(CC),)
 ifeq ($(shell uname -s),Darwin)
-	CC := clang
+CC := clang
 else
-	CC := gcc
+CC := gcc
+endif
 endif
 
 CCLD := $(CC)
@@ -10,6 +12,16 @@ CCLD := $(CC)
 EFFECTIVE_CPPFLAGS := $(CPPFLAGS) -Iinclude
 EFFECTIVE_CFLAGS := $(CFLAGS) -std=gnu99
 EFFECTIVE_LDFLAGS := $(LDFLAGS)
+
+ifeq ($(DEBUG),YES)
+EFFECTIVE_CFLAGS += -O0 -g
+else
+ifeq ($(CC),clang)
+EFFECTIVE_CFLAGS += -Os
+else
+EFFECTIVE_CFLAGS += -O3
+endif
+endif
 
 C_FILES := $(wildcard src/*.c)
 HEADERS := $(wildcard include/*.h)
@@ -19,14 +31,18 @@ TARGET := rev
 all: $(TARGET)
 
 %.c.o: %.c $(HEADERS)
-	$(CC) $(EFFECTIVE_CPPFLAGS) $(EFFECTIVE_CFLAGS) -c $< -o $@
+	@echo -e "  CC\t$<"
+	@$(CC) $(EFFECTIVE_CPPFLAGS) $(EFFECTIVE_CFLAGS) -c $< -o $@
 
 $(TARGET): $(OBJS)
-	$(CCLD) $(EFFECTIVE_LDFLAGS) -o $(TARGET) $(OBJS)
+	@echo -e "  CCLD\t$@"
+	@$(CCLD) $(EFFECTIVE_LDFLAGS) -o $(TARGET) $(OBJS)
 
 clean:
-	-rm -f $(TARGET) $(OBJS)
+	@echo "  CLEAN"
+	-@rm -f $(TARGET) $(OBJS) >& /dev/null
 
 check: all
-	cd test && ./check-all.sh ../$(TARGET) *.txt
+	@echo "  TEST"
+	@cd test && ./check-all.sh ../$(TARGET) *.txt
 
