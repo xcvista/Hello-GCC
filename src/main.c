@@ -20,8 +20,6 @@ int main(int argc, const char **argv)
         inbuf[strlen(inbuf) - 1] = 0;
         strrev(outbuf, inbuf);
         puts(outbuf);
-        memset(inbuf, 0, 1024);
-        memset(outbuf, 0, 1024);
     }
     exit(0);
 }

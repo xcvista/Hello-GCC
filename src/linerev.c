@@ -14,6 +14,6 @@ char *strrev(char *dst, const char *src)
     char *dp = dst;
     for (const char *sp = src + strlen(src) - 1; sp >= src; sp--, dp++)
         *dp = *sp;
-    dp = 0;
+    *dp = 0;
     return dp;
 }
