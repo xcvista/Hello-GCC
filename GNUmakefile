@@ -34,6 +34,7 @@ OBJS := $(subst .c,.c.o,$(C_FILES))
 TARGET := rev
 
 all: before_all $(TARGET)
+.PHONY: all before_all clean check profile install ci
 
 before_all:
 	@echo -e "Building version $(shell git log --pretty=format:'%h' -n 1)..."
@@ -70,3 +71,7 @@ install: all
 	@$(ECHO) -e "  INSTALL"
 	@mkdir -p $(PREFIX)/bin
 	@install -m 755 $(TARGET) $(PREFIX)/bin
+
+ci: all check profile
+	@echo ""
+	@./$(TARGET) -v

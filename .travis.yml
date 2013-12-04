@@ -8,6 +8,6 @@ env:
 before_script:
   - sudo ln -sf bash /bin/sh
 script:
-  - make check profile
+  - make ci
 after_script:
   - make clean
