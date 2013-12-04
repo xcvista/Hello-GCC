@@ -1,4 +1,5 @@
 # Products
 *.o
 rev
+version.h
 

@@ -1,25 +1,74 @@
+/*
+ * main.c - Main entry point and help routines
+ *
+ * Copyright (c) 2013 Maxthon Chan
+ *
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "linerev.h"
+#include <unistd.h>
+#include <ctype.h>
+#include <errno.h>
+
+#include "version.h"
+#include "reverse.h"
 
 int main(int argc, const char **argv)
 {
-    char *inbuf = malloc(1024);
-    char *outbuf = malloc(1024);
-    if (!inbuf || !outbuf)
+    opterr = 0;
+    int c = 0;
+    int anything = 0;
+    int ok = 0;
+
+    while ((c = getopt(argc, (char **)argv, "HhVv")) != -1)
     {
-        fprintf(stderr, "error: no memory.\n");
-        exit(1);
+        switch (c)
+        {
+            case 'H':
+            case 'h':
+                usage(0);
+            case 'V':
+            case 'v':
+                version(0);
+            case '?':
+                if (isprint(optopt))
+                    fprintf(stderr, "error: unknown option: -%c\n\n", optopt);
+                else
+                    fprintf(stderr, "error: unrecognized character: '\\x%x'\n\n", optopt);
+            default:
+                usage(1);
+        }
     }
 
-    memset(inbuf, 0, 1024);
-    memset(outbuf, 0, 1024);
-    while (fgets(inbuf, 1024, stdin))
+    for (int idx = optind; idx < argc; idx++)
     {
-        inbuf[strlen(inbuf) - 1] = 0;
-        strrev(outbuf, inbuf);
-        puts(outbuf);
+        const char *arg = argv[idx];
+        
+        anything = 1;
+
+        if (!strcmp(arg, "-"))
+            reverse(stdin);
+        else
+        {
+            FILE *file = fopen(arg, "r");
+            if (!file)
+            {
+                fprintf(stderr, "error: cannot open file '%s': %s", arg, strerror(errno));
+                ok = -1;
+                continue;
+            }
+            reverse(file);
+            if (fclose(file))
+            {
+                fprintf(stderr, "error: cannot close file '%s': %s", arg, strerror(errno));
+                ok = -1;
+            }
+        }
     }
-    exit(0);
+
+    if (!anything)
+        reverse(stdin);
+    return ok;
 }

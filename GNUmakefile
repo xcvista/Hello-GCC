@@ -1,5 +1,5 @@
 
-ifeq ($(CC),)
+ifeq ($(CC),cc)
 ifeq ($(shell uname -s),Darwin)
 CC := clang
 else
@@ -24,8 +24,12 @@ EFFECTIVE_CFLAGS += -O3
 endif
 endif
 
+ifeq ($(PREFIX),)
+PREFIX := /usr/local
+endif
+
 C_FILES := $(wildcard src/*.c)
-HEADERS := $(wildcard include/*.h)
+HEADERS := include/version.h $(wildcard include/*.h)
 OBJS := $(subst .c,.c.o,$(C_FILES))
 TARGET := rev
 
@@ -37,6 +41,10 @@ before_all:
 	@$(ECHO) -e "  CCLD\t\t= $(CCLD)"
 	@$(ECHO) -e "  CFLAGS\t= $(EFFECTIVE_CFLAGS)"
 	@$(ECHO) -e "  LDFLAGS\t= $(EFFECTIVE_LDFLAGS)"
+
+include/version.h: version.sh
+	@$(ECHO) -e "  GEN\t\t$@"
+	@./version.sh > $@
 
 %.c.o: %.c $(HEADERS)
 	@$(ECHO) -e "  CC\t\t$<"
@@ -57,3 +65,8 @@ check: all
 profile: all
 	@$(ECHO) -e "  PROFILE"
 	@time { for each in {1..100}; do ./$(TARGET) < src/main.c > /dev/null; done }
+
+install: all
+	@$(ECHO) -e "  INSTALL"
+	@mkdir -p $(PREFIX)/bin
+	@install -m 755 $(TARGET) $(PREFIX)/bin
